@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials') // Jenkins credentials ID
+        IMAGE_NAME = 'sivakannan012/my-app' // Update if needed
+    }
+
+    stages {
+        stage('Clone') {
+            steps {
+                echo 'Cloning repo...'
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo '🔧 Building Docker image...'
+                sh 'docker build -t $IMAGE_NAME .'
+            }
+        }
+
+        stage('Push') {
+            steps {
+                echo '🚀 Pushing image to DockerHub...'
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                sh 'docker push $IMAGE_NAME'
+            }
+        }
+    }
+}
